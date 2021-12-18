@@ -44,13 +44,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<ReferendaItem>?> getReferenda() async {
     List<ReferendaItem> list = [];
-    Uri uri =
-        Uri.parse("https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
+    Uri uri = Uri.parse(kIsWeb
+        ? "https://rear-end.a102009102009.repl.co/2021-Referenda"
+        : "https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
 
     late String responseHtml;
     if (kIsWeb) {
-      html.HttpRequest.requestCrossOrigin(uri.toString(), method: "GET").then((responseValue) {
-        responseHtml = responseValue;
+      html.HttpRequest.request(uri.toString(), method: "GET")
+          .then((responseValue) {
+        responseHtml = responseValue.responseText.toString();
       });
     } else {
       Response response = await get(uri, headers: {});
@@ -59,19 +61,42 @@ class _MyHomePageState extends State<MyHomePage> {
 
     dom.Document document = HtmlParser(responseHtml).parse();
     List<dom.Element> trT = document.getElementsByClassName("trT");
+    List<String> titles = ["第17案：核能商轉", "第18案：禁止萊豬", "第19案：公投綁大選", "第20案：三接藻礁"];
 
-    // 第17案
-    dom.Element referenda17 = trT[0];
-    List<dom.Element> children = referenda17.children;
-    int agreeVotes = int.parse(children[0].text);
-    int disagreeVotes = int.parse(children[1].text);
+    List<String> descriptionList = [
+      "您是否同意核四啟封商轉發電？",
+      "你是否同意政府應全面禁止進口含有萊克多巴胺之乙型受體素豬隻之肉品、內臟及其相關產製品？",
+      "你是否同意公民投票案公告成立後半年內，若該期間內遇有全國性選舉時，\n在符合公民投票法規定之情形下，公民投票應與該選舉同日舉行？",
+      "您是否同意中油第三天然氣接收站遷離桃園大潭藻礁海岸及海域？\n(即北起觀音溪出海口，南至新屋溪出海口之海岸，及由上述海岸最低潮線往外平行延伸五公里之海域)"
+    ];
 
-    list.add(ReferendaItem(
-        title: "第17案：您是否同意核四啟封商轉發電？",
-        image:
-            "https://pgw.udn.com.tw/gw/photo.php?u=https://uc.udn.com.tw/photo/2021/03/15/98/11879022.jpg&x=0&y=0&sw=0&sh=0&sl=W&fw=800&exp=3600",
-        agreeVotes: agreeVotes,
-        disagreeVotes: disagreeVotes));
+    List<String> images = [
+      "https://pgw.udn.com.tw/gw/photo.php?u=https://uc.udn.com.tw/photo/2021/03/15/98/11879022.jpg&x=0&y=0&sw=0&sh=0&sl=W&fw=800&exp=3600",
+      "https://doqvf81n9htmm.cloudfront.net/data/crop_article/122782/shutterstock_1676775730.jpg_1140x855.jpg",
+      "https://www.cna.com.tw/project/20211122-referendum/img/og_no19_1200x630.jpg",
+      "https://live.staticflickr.com/65535/51154906011_f9c53e5d85_b.jpg"
+    ];
+
+    for (dom.Element tr in trT) {
+      int index = trT.indexOf(tr);
+      if (index >= 4) {
+        break;
+      }
+
+      dom.Element referenda = trT[index];
+      List<dom.Element> children = referenda.children;
+      int agreeVotes =
+          int.parse(children[0].text.toString().replaceAll(",", ""));
+      int disagreeVotes =
+          int.parse(children[1].text.toString().replaceAll(",", ""));
+
+      list.add(ReferendaItem(
+          title: titles[index],
+          description: descriptionList[index],
+          image: images[index],
+          agreeVotes: agreeVotes,
+          disagreeVotes: disagreeVotes));
+    }
 
     setLastUpdateState?.call(() {
       _lastUpdate = DateTime.now();
@@ -111,47 +136,54 @@ class _MyHomePageState extends State<MyHomePage> {
             future: getReferenda(),
             builder: (BuildContext context, snapshot) {
               if (snapshot.hasData) {
-                return Column(
-                  children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          controller: ScrollController(),
-                          itemBuilder: (context, index) {
-                            ReferendaItem item = snapshot.data![index];
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 500,
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(25),
-                                      child: Image.network(item.image)),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      item.title,
-                                      style: titleStyle,
-                                    ),
-                                    Text("同意票數：${item.agreeVotes}",
-                                        style: subtitleStyle),
-                                    Text("不同意票數：${item.disagreeVotes}",
-                                        style: subtitleStyle),
-                                  ],
-                                ),
-                              ],
-                            );
-                          }),
-                    ),
-                  ],
-                );
+                return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    controller: ScrollController(),
+                    itemBuilder: (context, index) {
+                      ReferendaItem item = snapshot.data![index];
+                      return Column(
+                        children: [
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 500,
+                                child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(25),
+                                    child: Image.network(item.image)),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    item.title,
+                                    style: titleStyle,
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    item.description,
+                                    textAlign: TextAlign.center,
+                                    style: subtitleStyle,
+                                  ),
+                                  Text("同意票數：${item.agreeVotes}",
+                                      style: subtitleStyle),
+                                  Text("不同意票數：${item.disagreeVotes}",
+                                      style: subtitleStyle),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          const Divider()
+                        ],
+                      );
+                    });
               } else {
                 return const Center(child: CircularProgressIndicator());
               }
