@@ -36,6 +36,7 @@ dependencies:
   http: ^0.13.4
   html: ^0.15.0
   intl: ^0.17.0
+  universal_html: ^2.0.8
 
 dev_dependencies:
   flutter_test:
