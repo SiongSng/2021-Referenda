@@ -1,115 +1,137 @@
 import 'package:flutter/material.dart';
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart';
+import 'package:http/http.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:referenda/referenda.dart';
 
-void main() {
+void main() async {
+  await initializeDateFormatting("zh_TW");
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '2021 公投即時票數顯示',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+          primarySwatch: Colors.blue,
+          brightness: Brightness.dark,
+          fontFamily: 'font'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  DateTime? _lastUpdate;
+  StateSetter? setLastUpdateState;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  Future<List<ReferendaItem>?> getReferenda() async {
+    List<ReferendaItem> list = [];
+    Uri uri =
+        Uri.parse("https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
+    Response response = await get(uri);
+
+    dom.Document document = HtmlParser(response.body).parse();
+    List<dom.Element> trT = document.getElementsByClassName("trT");
+
+    // 第17案
+    dom.Element referenda17 = trT[0];
+    List<dom.Element> children = referenda17.children;
+    int agreeVotes = int.parse(children[0].text);
+    int disagreeVotes = int.parse(children[1].text);
+
+    list.add(ReferendaItem(
+        title: "第17案：您是否同意核四啟封商轉發電？",
+        agreeVotes: agreeVotes,
+        disagreeVotes: disagreeVotes));
+
+    setLastUpdateState?.call(() {
+      _lastUpdate = DateTime.now();
     });
+
+    return list;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    TextStyle titleStyle = const TextStyle(fontSize: 40, color: Colors.blue);
+    TextStyle subtitleStyle = const TextStyle(fontSize: 20);
+
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        appBar: AppBar(
+          title: const Text(
+            "2021 公投即時票數顯示",
+            textAlign: TextAlign.center,
+          ),
+          centerTitle: true,
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: FutureBuilder<List<ReferendaItem>?>(
+            future: getReferenda(),
+            builder: (BuildContext context, snapshot) {
+              if (snapshot.hasData) {
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          controller: ScrollController(),
+                          itemBuilder: (context, index) {
+                            ReferendaItem item = snapshot.data![index];
+                            return Column(
+                              children: [
+                                Text(
+                                  item.title,
+                                  style: titleStyle,
+                                ),
+                                Text("同意票數：${item.agreeVotes}",
+                                    style: subtitleStyle),
+                                Text("不同意票數：${item.disagreeVotes}",
+                                    style: subtitleStyle),
+                              ],
+                            );
+                          }),
+                    ),
+                  ],
+                );
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+        ),
+        persistentFooterButtons: [
+          StatefulBuilder(
+            builder: (BuildContext context, setState) {
+              setLastUpdateState = setState;
+
+              return _lastUpdate != null
+                  ? Center(
+                      child: Text(
+                          "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)}"))
+                  : const SizedBox.shrink();
+            },
+          ),
+        ]);
   }
 }
