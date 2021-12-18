@@ -72,6 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
       "https://live.staticflickr.com/65535/51154906011_f9c53e5d85_b.jpg"
     ];
 
+    List<String> pollingPlace = document
+        .getElementsByClassName("trFooterT")
+        .map((e) => e.text)
+        .toList();
+
     for (dom.Element tr in trT) {
       int index = trT.indexOf(tr);
       if (index >= 4) {
@@ -84,13 +89,16 @@ class _MyHomePageState extends State<MyHomePage> {
           int.parse(children[0].text.toString().replaceAll(",", ""));
       int disagreeVotes =
           int.parse(children[1].text.toString().replaceAll(",", ""));
+      int allVotes = agreeVotes + disagreeVotes;
 
       list.add(ReferendaItem(
           title: titles[index],
           description: descriptionList[index],
           image: images[index],
           agreeVotes: agreeVotes,
-          disagreeVotes: disagreeVotes));
+          disagreeVotes: disagreeVotes,
+          totalVotes: allVotes,
+          pollingPlace: pollingPlace[index]));
     }
 
     setLastUpdateState?.call(() {
@@ -136,7 +144,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: ScrollController(),
                     itemBuilder: (context, index) {
                       ReferendaItem item = snapshot.data![index];
-                      int allVotes = item.agreeVotes + item.disagreeVotes;
                       String agreeVotes = NumberFormat.compact(locale: "zh_TW")
                           .format(item.agreeVotes);
                       String disagreeVotes =
@@ -185,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           width: 10,
                                         ),
                                         Text(
-                                            "$agreeVotes (${((item.agreeVotes / allVotes) * 100).toStringAsFixed(2)}%)",
+                                            "$agreeVotes (${item.agreeVotesPercentage}%)",
                                             style: subtitleStyle)
                                       ],
                                     ),
@@ -197,10 +204,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                           width: 10,
                                         ),
                                         Text(
-                                            "$disagreeVotes (${((item.disagreeVotes / allVotes) * 100).toStringAsFixed(2)}%)",
+                                            "$disagreeVotes (${item.disagreeVotesPercentage}%)",
                                             style: subtitleStyle)
                                       ],
                                     ),
+                                    Text(
+                                        "有效票數：${NumberFormat.compact(locale: "zh_TW").format(item.totalVotes)}",
+                                        style: subtitleStyle),
+                                    Text(
+                                        "開票完成率：${((item.donePollingPlaces / item.totalPollingPlaces) * 100).toStringAsFixed(2)}%",
+                                        style: subtitleStyle)
                                   ],
                                 ),
                               ],
