@@ -166,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       style: subtitleStyle,
                                     ),
                                     const SizedBox(
-                                      height: 10,
+                                      height: 15,
                                     ),
                                     Row(
                                       children: [
@@ -211,7 +211,9 @@ class _MyHomePageState extends State<MyHomePage> {
               return _lastUpdate != null
                   ? Center(
                       child: Text(
-                          "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (每過一分鐘將自動更新)"))
+                      "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (每過一分鐘將自動更新)\n資料來源：中華民國中央選舉委員會",
+                      textAlign: TextAlign.center,
+                    ))
                   : const SizedBox.shrink();
             },
           ),
