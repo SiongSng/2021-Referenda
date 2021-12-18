@@ -8,6 +8,9 @@
             "name": "2021-Referenda",
             "request": "launch",
             "type": "dart",
+            "toolArgs": [
+                "--web-renderer=html"
+            ],
         },
         {
             "name": "2021-Referenda (profile mode)",

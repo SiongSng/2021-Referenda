@@ -8,7 +8,6 @@ import 'package:http/http.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:referenda/referenda.dart';
-import 'package:universal_html/html.dart' as html;
 
 void main() async {
   await initializeDateFormatting("zh_TW");
@@ -22,10 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '2021 公投即時票數顯示',
-      theme: ThemeData(
-          primarySwatch: Colors.blue,
-          brightness: Brightness.dark,
-          fontFamily: 'font'),
+      theme: ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
       home: const MyHomePage(),
     );
   }
@@ -47,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Uri uri = Uri.parse(kIsWeb
         ? "https://rear-end.a102009102009.repl.co/2021-Referenda"
         : "https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
-
 
     Response response = await get(uri, headers: {});
 
@@ -133,6 +128,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: ScrollController(),
                     itemBuilder: (context, index) {
                       ReferendaItem item = snapshot.data![index];
+                      String agreeVotes = NumberFormat.compact(locale: "zh_TW")
+                          .format(item.agreeVotes);
+                      String disagreeVotes =
+                          NumberFormat.compact(locale: "zh_TW")
+                              .format(item.disagreeVotes);
+
                       return Column(
                         children: [
                           const SizedBox(height: 10),
@@ -164,10 +165,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                       textAlign: TextAlign.center,
                                       style: subtitleStyle,
                                     ),
-                                    Text("同意票數：${item.agreeVotes}",
-                                        style: subtitleStyle),
-                                    Text("不同意票數：${item.disagreeVotes}",
-                                        style: subtitleStyle),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.thumb_up),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(agreeVotes, style: subtitleStyle)
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.thumb_down),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Text(disagreeVotes,
+                                            style: subtitleStyle)
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ],
@@ -200,6 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+// ignore: must_be_immutable
 class RowScrollView extends StatelessWidget {
   late ScrollController _controller;
   bool center;

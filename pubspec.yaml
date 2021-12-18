@@ -55,7 +55,3 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
   uses-material-design: true
-  fonts:
-    - family: font
-      fonts:
-        - asset: fonts/NotoSansCJKtc-Regular.otf #Source: https://fonts.google.com/noto
