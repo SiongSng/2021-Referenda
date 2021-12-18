@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
         trT.add(element);
       }
     }
-    List<String> titles = ["第17案：核能商轉", "第18案：禁止萊豬", "第19案：公投綁大選", "第20案：三接藻礁"];
+    List<String> titles = ["第17案：重啟核四", "第18案：反萊豬進口", "第19案：公投綁大選", "第20案：真愛藻礁"];
 
     List<String> descriptionList = [
       "您是否同意核四啟封商轉發電？",
