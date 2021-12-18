@@ -80,7 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
       dom.Element referenda = trT[index];
       List<dom.Element> children = referenda.children;
-      print(children.map((e) => e.text));
       int agreeVotes =
           int.parse(children[0].text.toString().replaceAll(",", ""));
       int disagreeVotes =
@@ -137,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     controller: ScrollController(),
                     itemBuilder: (context, index) {
                       ReferendaItem item = snapshot.data![index];
+                      int allVotes = item.agreeVotes + item.disagreeVotes;
                       String agreeVotes = NumberFormat.compact(locale: "zh_TW")
                           .format(item.agreeVotes);
                       String disagreeVotes =
@@ -184,7 +184,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        Text(agreeVotes, style: subtitleStyle)
+                                        Text(
+                                            "$agreeVotes (${((item.agreeVotes / allVotes) * 100).toStringAsFixed(2)}%)",
+                                            style: subtitleStyle)
                                       ],
                                     ),
                                     Row(
@@ -194,7 +196,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        Text(disagreeVotes,
+                                        Text(
+                                            "$disagreeVotes (${((item.disagreeVotes / allVotes) * 100).toStringAsFixed(2)}%)",
                                             style: subtitleStyle)
                                       ],
                                     ),
