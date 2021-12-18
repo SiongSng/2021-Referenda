@@ -136,40 +136,42 @@ class _MyHomePageState extends State<MyHomePage> {
                       return Column(
                         children: [
                           const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(
-                                width: 500,
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(25),
-                                    child: Image.network(item.image)),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                    item.title,
-                                    style: titleStyle,
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    item.description,
-                                    textAlign: TextAlign.center,
-                                    style: subtitleStyle,
-                                  ),
-                                  Text("同意票數：${item.agreeVotes}",
-                                      style: subtitleStyle),
-                                  Text("不同意票數：${item.disagreeVotes}",
-                                      style: subtitleStyle),
-                                ],
-                              ),
-                            ],
+                          RowScrollView(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 500,
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(25),
+                                      child: Image.network(item.image)),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                Column(
+                                  children: [
+                                    Text(
+                                      item.title,
+                                      style: titleStyle,
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      item.description,
+                                      textAlign: TextAlign.center,
+                                      style: subtitleStyle,
+                                    ),
+                                    Text("同意票數：${item.agreeVotes}",
+                                        style: subtitleStyle),
+                                    Text("不同意票數：${item.disagreeVotes}",
+                                        style: subtitleStyle),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 10),
                           const Divider()
@@ -195,5 +197,32 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ]);
+  }
+}
+
+class RowScrollView extends StatelessWidget {
+  late ScrollController _controller;
+  bool center;
+  Row child;
+
+  RowScrollView({
+    Key? key,
+    ScrollController? controller,
+    this.center = true,
+    required this.child,
+  }) : super(key: key) {
+    _controller = controller ?? ScrollController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+        alignment: center ? Alignment.center : Alignment.centerLeft,
+        child: Scrollbar(
+            controller: _controller,
+            child: SingleChildScrollView(
+                controller: _controller,
+                scrollDirection: Axis.horizontal,
+                child: child)));
   }
 }
