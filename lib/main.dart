@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
@@ -68,6 +70,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    Timer.periodic(const Duration(minutes: 1), (timer) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -128,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return _lastUpdate != null
                   ? Center(
                       child: Text(
-                          "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)}"))
+                          "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (每過一分鐘將自動更新)"))
                   : const SizedBox.shrink();
             },
           ),
