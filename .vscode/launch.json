@@ -7,7 +7,7 @@
         {
             "name": "2021-Referenda",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
         },
         {
             "name": "2021-Referenda (profile mode)",

@@ -48,18 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ? "https://rear-end.a102009102009.repl.co/2021-Referenda"
         : "https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
 
-    late String responseHtml;
-    if (kIsWeb) {
-      html.HttpRequest.request(uri.toString(), method: "GET")
-          .then((responseValue) {
-        responseHtml = responseValue.responseText.toString();
-      });
-    } else {
-      Response response = await get(uri, headers: {});
-      responseHtml = response.body;
-    }
 
-    dom.Document document = HtmlParser(responseHtml).parse();
+    Response response = await get(uri, headers: {});
+
+    dom.Document document = HtmlParser(response.body).parse();
     List<dom.Element> trT = document.getElementsByClassName("trT");
     List<String> titles = ["第17案：核能商轉", "第18案：禁止萊豬", "第19案：公投綁大選", "第20案：三接藻礁"];
 
