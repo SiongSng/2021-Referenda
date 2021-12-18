@@ -49,13 +49,13 @@ class _MyHomePageState extends State<MyHomePage> {
     dom.Document document = HtmlParser(response.body).parse();
     List<dom.Element> trT = [];
     List<dom.Element> _ = document.getElementsByClassName("trT");
-    _.forEach((element) {
+    for (dom.Element element in _) {
       int i = _.indexOf(element);
       bool _bool = i % 2 == 0;
       if (_bool) {
         trT.add(element);
       }
-    });
+    }
     List<String> titles = ["第17案：核能商轉", "第18案：禁止萊豬", "第19案：公投綁大選", "第20案：三接藻礁"];
 
     List<String> descriptionList = [
@@ -179,7 +179,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                     Row(
                                       children: [
-                                        const Icon(Icons.thumb_up),
+                                        const Icon(Icons.thumb_up,
+                                            color: Colors.green),
                                         const SizedBox(
                                           width: 10,
                                         ),
@@ -188,7 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                     Row(
                                       children: [
-                                        const Icon(Icons.thumb_down),
+                                        const Icon(Icons.thumb_down,
+                                            color: Colors.red),
                                         const SizedBox(
                                           width: 10,
                                         ),
