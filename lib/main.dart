@@ -47,7 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
     Response response = await get(uri, headers: {});
 
     dom.Document document = HtmlParser(response.body).parse();
-    List<dom.Element> trT = document.getElementsByClassName("trT");
+    List<dom.Element> trT = [];
+    List<dom.Element> _ = document.getElementsByClassName("trT");
+    _.forEach((element) {
+      int i = _.indexOf(element);
+      bool _bool = i % 2 == 0;
+      if (_bool) {
+        trT.add(element);
+      }
+    });
     List<String> titles = ["第17案：核能商轉", "第18案：禁止萊豬", "第19案：公投綁大選", "第20案：三接藻礁"];
 
     List<String> descriptionList = [
@@ -72,6 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       dom.Element referenda = trT[index];
       List<dom.Element> children = referenda.children;
+      print(children.map((e) => e.text));
       int agreeVotes =
           int.parse(children[0].text.toString().replaceAll(",", ""));
       int disagreeVotes =
@@ -96,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    Timer.periodic(const Duration(minutes: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
         setState(() {});
       }
@@ -211,7 +220,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return _lastUpdate != null
                   ? Center(
                       child: Text(
-                      "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (每過一分鐘將自動更新)\n資料來源：中華民國中央選舉委員會",
+                      "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (每30秒將自動更新)\n資料來源：中華民國中央選舉委員會",
                       textAlign: TextAlign.center,
                     ))
                   : const SizedBox.shrink();
