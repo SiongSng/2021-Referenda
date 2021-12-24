@@ -1,12 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
-import 'package:http/http.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:referenda/data.dart';
 import 'package:referenda/referenda.dart';
 
 void main() async {
@@ -40,13 +39,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<ReferendaItem>?> getReferenda() async {
     List<ReferendaItem> list = [];
-    Uri uri = Uri.parse(kIsWeb
-        ? "https://rear-end.a102009102009.repl.co/2021-Referenda"
-        : "https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
+    String sourceData;
 
-    Response response = await get(uri, headers: {});
+    // Uri uri = Uri.parse(kIsWeb
+    //     ? "https://rear-end.a102009102009.repl.co/2021-Referenda"
+    //     : "https://www.cec.gov.tw/pc/zh_TW/00/00000000000000000.html");
 
-    dom.Document document = HtmlParser(response.body).parse();
+    // Response response = await get(uri, headers: {});
+    // sourceData = response.body;
+
+    /// 由於公投已經結束，因此資料將不再從網路讀取
+    sourceData = referendaData;
+    dom.Document document = HtmlParser(sourceData).parse();
     List<dom.Element> trT = [];
     List<dom.Element> _ = document.getElementsByClassName("trT");
     for (dom.Element element in _) {
@@ -56,7 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
         trT.add(element);
       }
     }
-    List<String> titles = ["第17案：重啟核四", "第18案：反萊豬進口", "第19案：公投綁大選", "第20案：真愛藻礁"];
+    List<String> titles = [
+      "第17案：重啟核四",
+      "第18案：反萊豬進口",
+      "第19案：公投綁大選",
+      "第20案：真愛藻礁"
+    ];
 
     List<String> descriptionList = [
       "您是否同意核四啟封商轉發電？",
@@ -112,11 +121,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    Timer.periodic(const Duration(seconds: 30), (timer) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
+    /// 由於公投已經結束，因此不需要自動更新票數
+    // Timer.periodic(const Duration(seconds: 30), (timer) {
+    //   if (mounted) {
+    //     setState(() {});
+    //   }
+    // });
   }
 
   @override
@@ -238,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
               return _lastUpdate != null
                   ? Center(
                       child: Text(
-                      "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (每30秒將自動更新)\n資料來源：中華民國中央選舉委員會",
+                      "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (由於公投已結束，此資料將不再自動更新)\n資料來源：中華民國中央選舉委員會",
                       textAlign: TextAlign.center,
                     ))
                   : const SizedBox.shrink();
