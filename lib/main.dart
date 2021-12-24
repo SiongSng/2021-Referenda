@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DateTime? _lastUpdate;
+  late DateTime _lastUpdate;
   StateSetter? setLastUpdateState;
 
   Future<List<ReferendaItem>?> getReferenda() async {
@@ -119,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    _lastUpdate = DateTime.now();
     super.initState();
 
     /// 由於公投已經結束，因此不需要自動更新票數
@@ -245,13 +246,11 @@ class _MyHomePageState extends State<MyHomePage> {
             builder: (BuildContext context, setState) {
               setLastUpdateState = setState;
 
-              return _lastUpdate != null
-                  ? Center(
-                      child: Text(
-                      "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (由於公投已結束，此資料將不再自動更新)\n資料來源：中華民國中央選舉委員會",
-                      textAlign: TextAlign.center,
-                    ))
-                  : const SizedBox.shrink();
+              return Center(
+                  child: Text(
+                "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (由於公投已結束，此資料將不再自動更新)\n資料來源：中華民國中央選舉委員會",
+                textAlign: TextAlign.center,
+              ));
             },
           ),
         ]);
