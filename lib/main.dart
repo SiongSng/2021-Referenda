@@ -248,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               return Center(
                   child: Text(
-                "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate!)} (由於公投已結束，此資料將不再自動更新)\n資料來源：中華民國中央選舉委員會",
+                "資料最後更新日期： ${DateFormat.yMd('zh_TW').add_jms().format(_lastUpdate)} (由於公投已結束，此資料將不再自動更新)\n資料來源：中華民國中央選舉委員會",
                 textAlign: TextAlign.center,
               ));
             },
